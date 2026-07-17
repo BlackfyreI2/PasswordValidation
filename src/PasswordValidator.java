@@ -1,11 +1,35 @@
-// ดูโจทย์ spec และวิธีทำใน README.md
 public class PasswordValidator {
-
-    static final int MIN_LEN = 8;
-    static final int MAX_LEN = 20;
-
-    static boolean validate(String pw) {
-        // TODO: implement ตาม spec ใน README.md (R1-R6)
-        return false;
+    
+    public boolean validate(String pw) {
+       
+        if (pw == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+        
+      
+        if (pw.length() < 8 || pw.length() > 20) {
+            return false;
+        }
+        
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        
+       
+        for (char c : pw.toCharArray()) {
+            if (c == ' ') {
+                return false; 
+            }
+            if (Character.isUpperCase(c)) {
+                hasUpper = true; 
+            } else if (Character.isLowerCase(c)) {
+                hasLower = true; 
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            }
+        }
+        
+       
+        return hasUpper && hasLower && hasDigit;
     }
 }
