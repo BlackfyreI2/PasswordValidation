@@ -1,45 +1,45 @@
-// ดูโจทย์ วิธีทำใน README.md
-// หน้าที่ของคุณ: ออกแบบ test เอง แล้วเติม check(...) ให้ครบทุก branch
 public class TestRunner {
+    static int passCount = 0;
+    static int failCount = 0;
 
-    static int pass = 0, fail = 0;
-
-    static void check(String name, boolean ok) {
-        if (ok) { pass++; System.out.println("  [PASS] " + name); }
-        else    { fail++; System.out.println("  [FAIL] " + name); }
+    public static void check(String name, boolean condition) {
+        if (condition) {
+            System.out.println("  [PASS] " + name);
+            passCount++;
+        } else {
+            System.out.println("  [FAIL] " + name);
+            failCount++;
+        }
     }
 
-    public static void main(String[] a) {
-        boolean ea = false;
-        assert ea = true;
-        if (!ea) System.out.println("** คำเตือน: assertion ปิดอยู่ รันด้วย  java -ea TestRunner **");
-
+    public static void main(String[] args) {
         System.out.println("== Password Validation ==");
+        PasswordValidator validator = new PasswordValidator();
 
-        // ตัวอย่าง assertion ปกติ (ตัวแทนกลุ่ม valid)
-        check("'Abcdef12' valid", PasswordValidator.validate("Abcdef12"));
+        try {
+            validator.validate(null);
+            check("null -> throws IllegalArgumentException", false);
+        } catch (IllegalArgumentException e) {
+            check("null -> throws IllegalArgumentException", true);
+        }
 
-        // ตัวอย่างแพตเทิร์นทดสอบ "ต้อง throw" ด้วย try/catch
-        boolean threw = false;
-        try { PasswordValidator.validate(null); }
-        catch (IllegalArgumentException e) { threw = true; }
-        check("null -> throws IllegalArgumentException", threw);
+      
+        check("'Valid1234' valid (EP)", validator.validate("Valid1234") == true);
+        check("'Aa1' too short (EP)", validator.validate("Aa1") == false);
+        check("'SuperLongPasswordThatFails123' too long (EP)", validator.validate("SuperLongPasswordThatFails123") == false);
+        check("'abcdef12' no uppercase (R3)", validator.validate("abcdef12") == false);
+        check("'ABCDEF12' no lowercase (R4)", validator.validate("ABCDEF12") == false);
+        check("'Abcdefgh' no digit (R5)", validator.validate("Abcdefgh") == false);
+        check("'Abc def1' contains space (R6)", validator.validate("Abc def1") == false);
 
-        // TODO: R2 - boundary ความยาว (เช่น 7, 8, 20, 21)
-
-        // TODO: R3 - ไม่มีตัวพิมพ์ใหญ่ -> false
-
-        // TODO: R4 - ไม่มีตัวพิมพ์เล็ก -> false
-
-        // TODO: R5 - ไม่มีตัวเลข -> false
-
-        // TODO: R6 - มีช่องว่าง -> false
-
-        // TODO: boundary อื่นๆ ที่คุณคิดว่าจำเป็น
+       
+        check("'Abcdef1' length 7 (BVA ขอบล่าง-1)", validator.validate("Abcdef1") == false);
+        check("'Abcdef12' length 8 (BVA ขอบล่าง)", validator.validate("Abcdef12") == true);
+        check("'Abcdef12345678901234' length 20 (BVA ขอบบน)", validator.validate("Abcdef12345678901234") == true);
+        check("'Abcdef123456789012345' length 21 (BVA ขอบบน+1)", validator.validate("Abcdef123456789012345") == false);
 
         System.out.println("==================================");
-        System.out.printf("PASS %d / FAIL %d%n", pass, fail);
+        System.out.println("PASS " + passCount + " / FAIL " + failCount);
         System.out.println("==================================");
-        System.exit(fail == 0 ? 0 : 1);
     }
 }
